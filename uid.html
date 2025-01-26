@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jishnu Teja Dandamudi</title>
+
+    <style>
+        /* General body styling */
+        body {
+            margin: 0;
+            font-family: 'Poppins', Arial, sans-serif;
+            background: url('background1.jpeg') no-repeat center center fixed;
+            background-size: contain;
+            color: #f8f9fa;
+        }
+
+        /* Navbar styling */
+        .navbar {
+            display: flex;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar button {
+            background: linear-gradient(135deg, #ff8a00, #e52e71);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar button:hover {
+            background: linear-gradient(135deg, #e52e71, #ff8a00);
+            transform: scale(1.1);
+        }
+
+        /* Main content styling */
+        .content {
+            text-align: center;
+            padding: 60px 30px;
+            background: rgba(0, 0, 0, 0.6);
+            margin: 50px auto;
+            border-radius: 20px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            animation: fadeIn 1.5s ease;
+        }
+
+        h1 {
+            font-size: 3em;
+            color: #fadb14;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
+        }
+
+        p {
+            font-size: 1.4em;
+            line-height: 1.8;
+            color: #f1f1f1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Animation for content fade-in */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-wrap: wrap;
+            }
+            .navbar button {
+                margin: 5px;
+                font-size: 14px;
+                padding: 10px 15px;
+            }
+            h1 {
+                font-size: 2.5em;
+            }
+            p {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar section -->
+    <div class="navbar">
+	<button onclick="window.open('dsa.html', '_blank')">DSA & OOPS</button>
+	<button onclick="window.open('eee.html', '_blank')">EEE</button>
+        <button onclick="window.open('eoc.html', '_blank')">EOC & MFC</button>
+        <button onclick="window.open('contact.html', '_blank')">CONTACT</button>
+    </div>
+
+    <!-- Main content section -->
+    <div class="content">
+        <h1>Welcome to My Website</h1>
+        <p>This page showcases all my Semester 2 projects from my B.Tech journey. Feel free to explore and discover the work I've put into each subject.</p>
+    </div>
+
+</body>
+</html>	

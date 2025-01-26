@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airline Seat Reservation System</title>
+    <style>
+        /* Styling for the entire page */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5; /* Light gray background */
+        }
+
+        /* Container styling for the application */
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #ffffff; /* White background */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+
+        /* Center-aligning the title */
+        h1 {
+            text-align: center;
+        }
+
+        /* Styling for form groups */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        /* Label styling */
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Input and button styling */
+        input, button {
+            width: 99%;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        /* Styling for buttons */
+        button {
+            background-color: #007bff; /* Blue background */
+            color: white; /* White text */
+            border: none;
+            border-radius: 5px; /* Rounded corners */
+            cursor: pointer; /* Pointer cursor on hover */
+        }
+
+        /* Button hover effect */
+        button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        /* Styling for the status output */
+        .status {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Airline Seat Reservation System</h1>
+    
+    <!-- Reservation Form -->
+    <div class="form-group">
+        <!-- Input for passenger name -->
+        <label for="passengerName">Passenger Name:</label>
+        <input type="text" id="passengerName" placeholder="Enter passenger name">
+    </div>
+    <div class="form-group">
+        <!-- Input for seat preference by row -->
+        <label for="seatPreference">Seat Preference (Row):</label>
+        <input type="text" id="seatPreference" placeholder="Enter row preference (e.g., 1)">
+    </div>
+    <!-- Button to reserve a seat -->
+    <button onclick="reserveSeat()">Reserve Seat</button>
+    
+    <!-- Cancellation Form -->
+    <div class="form-group" style="margin-top: 20px;">
+        <!-- Input for seat number to cancel -->
+        <label for="seatNumber">Cancel Reservation (Seat Number):</label>
+        <input type="text" id="seatNumber" placeholder="Enter seat number to cancel (e.g., 1A)">
+    </div>
+    <!-- Button to cancel a seat -->
+    <button onclick="cancelSeat()">Cancel Reservation</button>
+    
+    <!-- Button to show the current status of seats -->
+    <button style="margin-top: 20px;" onclick="showStatus()">Show Status</button>
+    
+    <!-- Buttons to download files -->
+    <button style="margin-top: 20px;" onclick="downloadPythonFile()">Download Python Code</button>
+    <button style="margin-top: 20px;" onclick="downloadJavaFile()">Download Java Code</button>
+    <button style="margin-top: 20px;" onclick="downloadSourceFile()">Download Source Code</button>
+
+    <!-- Area to display the status of reservations -->
+    <div class="status" id="statusOutput"></div>
+</div>
+
+<script>
+    // Initialize available seats as an array of seat numbers (e.g., 1A, 1B, 1C, 2A, 2B, 2C)
+    const availableSeats = Array.from({ length: 2 }, (_, row) =>
+        ['A', 'B', 'C'].map(col => `${row + 1}${col}`)
+    ).flat();
+
+    // Object to store reserved seats with seat numbers as keys and passenger names as values
+    const reservedSeats = {};
+
+    // Class implementing a Min-Heap for managing the standby list
+    class MinHeap {
+        constructor() {
+            this.heap = []; // Initialize an empty heap
+        }
+
+        // Insert a passenger name into the heap
+        insert(passengerName) {
+            this.heap.push(passengerName); // Add to the end of the heap
+            this.bubbleUp(); // Adjust position to maintain heap property
+        }
+
+        // Extract the minimum value (next passenger) from the heap
+        extractMin() {
+            if (this.heap.length === 0) return null; // Return null if heap is empty
+            const min = this.heap[0]; // Minimum is at the root
+            const last = this.heap.pop(); // Remove the last element
+            if (this.heap.length > 0) {
+                this.heap[0] = last; // Move the last element to the root
+                this.bubbleDown(); // Adjust position to maintain heap property
+            }
+            return min;
+        }
+
+        // Adjust position upwards to maintain heap property
+        bubbleUp() {
+            let index = this.heap.length - 1;
+            while (index > 0) {
+                const parentIndex = Math.floor((index - 1) / 2);
+                if (this.heap[parentIndex] <= this.heap[index]) break; // Stop if parent is smaller or equal
+                [this.heap[parentIndex], this.heap[index]] = [this.heap[index], this.heap[parentIndex]];
+                index = parentIndex;
+            }
+        }
+
+        // Adjust position downwards to maintain heap property
+        bubbleDown() {
+            let index = 0;
+            const length = this.heap.length;
+            while (true) {
+                const leftChildIndex = 2 * index + 1;
+                const rightChildIndex = 2 * index + 2;
+                let smallest = index;
+
+                if (leftChildIndex < length && this.heap[leftChildIndex] < this.heap[smallest]) {
+                    smallest = leftChildIndex;
+                }
+
+                if (rightChildIndex < length && this.heap[rightChildIndex] < this.heap[smallest]) {
+                    smallest = rightChildIndex;
+                }
+
+                if (smallest === index) break; // Stop if no swaps needed
+
+                [this.heap[smallest], this.heap[index]] = [this.heap[index], this.heap[smallest]];
+                index = smallest;
+            }
+        }
+
+        // Return the size of the heap
+        size() {
+            return this.heap.length;
+        }
+
+        // Check if the heap is empty
+        isEmpty() {
+            return this.heap.length === 0;
+        }
+    }
+
+    // Initialize a Min-Heap for the standby list
+    const standbyList = new MinHeap();
+
+    // Function to reserve a seat
+    function reserveSeat() {
+        const passengerName = document.getElementById("passengerName").value.trim();
+        const seatPreference = document.getElementById("seatPreference").value.trim();
+
+        // Check if a passenger name is entered
+        if (!passengerName) {
+            alert("Please enter a passenger name.");
+            return;
+        }
+
+        let allocatedSeat = null;
+
+        if (availableSeats.length > 0) {
+            // Try to find a seat matching the preference
+            if (seatPreference) {
+                allocatedSeat = availableSeats.find(seat => seat.startsWith(seatPreference));
+            }
+            // If no preferred seat is found, allocate the first available seat
+            if (!allocatedSeat) {
+                allocatedSeat = availableSeats[0];
+            }
+
+            // Remove the allocated seat from available seats and add to reserved seats
+            availableSeats.splice(availableSeats.indexOf(allocatedSeat), 1);
+            reservedSeats[allocatedSeat] = passengerName;
+            alert(`Seat ${allocatedSeat} reserved for ${passengerName}.`);
+        } else {
+            // Add the passenger to the standby list if no seats are available
+            standbyList.insert(passengerName);
+            alert(`No seats available. ${passengerName} added to the standby list.`);
+        }
+
+        // Clear the input fields
+        document.getElementById("passengerName").value = "";
+        document.getElementById("seatPreference").value = "";
+    }
+
+    // Function to cancel a reservation
+    function cancelSeat() {
+        const seatNumber = document.getElementById("seatNumber").value.trim();
+
+        // Check if a seat number is entered
+        if (!seatNumber) {
+            alert("Please enter a seat number to cancel.");
+            return;
+        }
+
+        // Check if the seat is reserved
+        if (reservedSeats[seatNumber]) {
+            const passengerName = reservedSeats[seatNumber]; // Get the passenger name
+            delete reservedSeats[seatNumber]; // Remove the reservation
+
+            if (!standbyList.isEmpty()) {
+                // Allocate the seat to the next person in the standby list
+                const nextPassenger = standbyList.extractMin();
+                reservedSeats[seatNumber] = nextPassenger;
+                alert(`Seat ${seatNumber} is now reserved for ${nextPassenger} from the standby list.`);
+            } else {
+                // Add the canceled seat back to available seats
+                availableSeats.push(seatNumber);
+                availableSeats.sort();
+                alert(`Seat ${seatNumber} has been canceled.`);
+            }
+        } else {
+            alert("Invalid seat number or seat is not reserved.");
+        }
+
+        // Clear the input field
+        document.getElementById("seatNumber").value = "";
+    }
+
+    // Function to display the current status
+    function showStatus() {
+        const statusOutput = document.getElementById("statusOutput");
+        statusOutput.innerHTML = `
+            <h3>Available Seats:</h3>
+            <p>${availableSeats.join(", ") || "None"}</p>
+            <h3>Reserved Seats:</h3>
+            <p>${Object.entries(reservedSeats).map(([seat, name]) => `${seat}: ${name}`).join("<br>") || "None"}</p>
+            <h3>Standby List:</h3>
+            <p>${standbyList.heap.join(", ") || "None"}</p>
+        `;
+    }
+
+    // Function to download the Python code file
+    function downloadPythonFile() {
+        const link = document.createElement("a");
+        link.href = "dsa_code.py"; // File location
+        link.download = "dsa_code.py"; // File name for download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Function to download the Java code file
+    function downloadJavaFile() {
+        const link = document.createElement("a");
+        link.href = "AirlineSeatReservation.java"; // File location
+        link.download = "AirlineSeatReservation.java"; // File name for download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+    
+    // Function to download the source file
+    function downloadSourceFile() {
+        const link = document.createElement("a");
+        link.href = "dsa.txt"; // File location
+        link.download = "dsa.txt"; // File name for download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+</script>
+
+</body>
+</html>
