@@ -83,6 +83,43 @@
             }
         }
 
+        /* Projects section styling */
+        .projects {
+            display: flex;
+            justify-content: space-around;
+            margin: 40px 0;
+        }
+
+        .project-tile {
+            background: rgb(131, 39, 39);
+            border-radius: 10px;
+            padding: 20px;
+            width: 30%;
+            text-align: center;
+            transition: background-color 0.3s ease;
+            position: relative;
+        }
+
+        .project-tile:hover {
+            background-color: #faf7f7;
+        }
+
+        .description {
+            display: none;
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: black;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .project-tile:hover .description {
+            display: block;
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
             .navbar {
@@ -99,6 +136,14 @@
             p {
                 font-size: 1.2em;
             }
+            .projects {
+                flex-direction: column;
+                align-items: center;
+            }
+            .project-tile {
+                width: 80%;
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
@@ -106,8 +151,8 @@
 
     <!-- Navbar section -->
     <div class="navbar">
-	<button onclick="window.open('dsa.html', '_blank')">DSA & OOPS</button>
-	<button onclick="window.open('eee.html', '_blank')">EEE</button>
+        <button onclick="window.open('dsa.html', '_blank')">DSA & OOPS</button>
+        <button onclick="window.open('eee.html', '_blank')">EEE</button>
         <button onclick="window.open('eoc.html', '_blank')">EOC & MFC</button>
         <button onclick="window.open('contact.html', '_blank')">CONTACT</button>
     </div>
@@ -118,5 +163,25 @@
         <p>This page showcases all my Semester 2 projects from my B.Tech journey. Feel free to explore and discover the work I've put into each subject.</p>
     </div>
 
+    <br><br><br><br><br><br></br></br>
+    <!-- Projects section -->
+    <div class="projects">
+        <div class="project-tile">
+            <h2>DSA & OOPS</h2>
+            <p class="description">Description of Project 1</p>
+            <a href="dsa.html">View Project</a>
+        </div>
+        <div class="project-tile">
+            <h2>EEE</h2>
+            <p class="description">Description of Project 2</p>
+            <a href="eee.html">View Project</a>
+        </div>
+        <div class="project-tile">
+            <h2>EOC & MFC</h2>
+            <p class="description">Description of Project 3</p>
+            <a href="eoc.html">View Project</a>
+        </div>
+    </div>
+
 </body>
-</html>	
+</html>
