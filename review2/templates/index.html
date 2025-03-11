@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Run Microgrid Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        button {
+            font-size: 18px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        #loading {
+            display: none;
+            font-size: 18px;
+            color: blue;
+        }
+        #plots {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Microgrid Simulation</h1>
+    <button id="runButton">Run Simulation</button>
+    <p id="loading">Running simulation, please wait...</p>
+    <div id="plots"></div>
+
+    <script>
+        document.getElementById("runButton").addEventListener("click", function() {
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("plots").innerHTML = "";
+
+            fetch("/run", { method: "POST" })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("loading").style.display = "none";
+                data.plots.forEach(src => {
+                    let img = document.createElement("img");
+                    img.src = src;
+                    img.style.width = "80%";
+                    document.getElementById("plots").appendChild(img);
+                });
+            })
+            .catch(error => {
+                document.getElementById("loading").textContent = "Error running simulation!";
+                console.error(error);
+            });
+        });
+    </script>
+
+</body>
+</html>
